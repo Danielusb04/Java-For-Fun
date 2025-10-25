@@ -3,66 +3,70 @@ import java.util.concurrent.atomic.AtomicInteger; // Permite generar números un
 
 public class CuentaBancaria { // clase publica cuenta bancaria
     private static final AtomicInteger SEQ = new AtomicInteger(1);
+    // Con private solo se puede acceder dentor de la clase // static compartido por todas las intancias // no se puede cambiar la referencia
+    // Con AtomicInteger es un contador seguro para todos los hilos y luego lo devuelve con el valor actual y lo incremnta
+    public enum TipoCuenta { CORRIENTE, AHORROS } // calse publica que enumera el tipo de cuenta 1 para corriente 2 para ahorros
 
-    public enum TipoCuenta { CORRIENTE, AHORROS }
-
-    private final int id;
+    private final int id; 
     private final String cliente;
     private final TipoCuenta tipo;
     private double saldo;
-    private final List<String> historial = new ArrayList<>();
+    private final List<String> historial = new ArrayList<>(); // Se crea una lista tipo string donde en historial guardara los movimientos en un ArrayList<>();
+    
 
-    public CuentaBancaria(String cliente, TipoCuenta tipo, double saldoInicial) {
-        this.id = SEQ.getAndIncrement();
-        this.cliente = Objects.requireNonNull(cliente, "Cliente no puede ser null");
-        this.tipo = Objects.requireNonNull(tipo, "Tipo de cuenta no puede ser null");
-        this.saldo = Math.max(0.0, saldoInicial);
-        historial.add("Cuenta creada con saldo inicial: $" + saldoInicial);
+    // constructor de cuenta bancaria
+    // "this" hace referencia al objeto actual
+    public CuentaBancaria(String cliente, TipoCuenta tipo, double saldoInicial) { 
+        this.id = SEQ.getAndIncrement(); // auto increment del id
+        this.cliente = Objects.requireNonNull(cliente, "Cliente no puede ser null");  // rquiere un valor que no se vacio
+        this.tipo = Objects.requireNonNull(tipo, "Tipo de cuenta no puede ser null"); // Requiere tipo de cuenta y que no se vacio
+        this.saldo = Math.max(0.0, saldoInicial); // objeto saldo + funcion de la clase Math. Devuelve el mayo entre (a,b) Si el saldo inicial es 0 toma el valor de a de lo contrario toma el valor de b
+        historial.add("Cuenta creada con saldo inicial: $" + saldoInicial);   // es el metodo de una lista, de la variable historia
     }
 
-    public int getId() { return id; }
+    public int getId() { return id; } 
     public String getCliente() { return cliente; }
     public TipoCuenta getTipo() { return tipo; }
 
     public synchronized double getSaldo() { return saldo; }
 
-    public synchronized void depositar(double cantidad) {
-        if (cantidad <= 0) throw new IllegalArgumentException("La cantidad a depositar debe ser mayor que 0");
-        saldo += cantidad;
-        historial.add("Depósito de $" + cantidad + " | Nuevo saldo: $" + saldo);
+    public synchronized void depositar(double cantidad) { // Synchronizez es para que dos personas no este modificando al momismo tiempo y void no devuelve ningun valor
+        if (cantidad <= 0) throw new IllegalArgumentException("La cantidad a depositar debe ser mayor que 0"); // si la catidad a depositar es 0 devuelve un errorr por medio de la Eception
+        saldo += cantidad; // Suma el saldo
+        historial.add("Depósito de $" + cantidad + " | Nuevo saldo: $" + saldo); // Agrega la información al historial de transacciones y suma el saldo
     }
 
     public synchronized void retirar(double cantidad) throws InsufficientFundsException {
         if (cantidad <= 0) throw new IllegalArgumentException("La cantidad a retirar debe ser mayor que 0");
-        if (cantidad > saldo) throw new InsufficientFundsException("Saldo insuficiente");
-        saldo -= cantidad;
-        historial.add("Retiro de $" + cantidad + " | Nuevo saldo: $" + saldo);
+        if (cantidad > saldo) throw new InsufficientFundsException("Saldo insuficiente"); // Si la cantidad a retirar > saldo arroja un error
+        saldo -= cantidad; // resta el saldo
+        historial.add("Retiro de $" + cantidad + " | Nuevo saldo: $" + saldo); 
     }
 
-    // 🔹 Nueva funcionalidad 1: Transferencia entre cuentas
+    // Transferencia entre cuentas
     public synchronized void transferir(CuentaBancaria destino, double monto)
-            throws InsufficientFundsException {
-        if (destino == null) throw new IllegalArgumentException("La cuenta destino no puede ser nula.");
+            throws InsufficientFundsException { // creamos una excepcion, en caso de que el monto a transferir sea mayor al que tiene la cuenta
+        if (destino == null) throw new IllegalArgumentException("La cuenta destino no puede ser nula."); 
         if (monto <= 0) throw new IllegalArgumentException("El monto debe ser mayor que 0.");
         if (monto > saldo) throw new InsufficientFundsException("Saldo insuficiente para transferir.");
-        this.saldo -= monto;
-        destino.saldo += monto;
-        historial.add("Transferencia de $" + monto + " a " + destino.getCliente());
-        destino.historial.add("Transferencia recibida de $" + monto + " desde " + this.getCliente());
+        this.saldo -= monto; // restamos el saldo de la cuenta seleccionada
+        destino.saldo += monto; // Suma el saldo
+        historial.add("Transferencia de $" + monto + " a " + destino.getCliente()); // actualiza el historial y solicita la cuenta que recibira la transferencia
+        destino.historial.add("Transferencia recibida de $" + monto + " desde " + this.getCliente()); // Actualiza la cuenta que recibio el la transferencia
     }
 
-    // 🔹 Nueva funcionalidad 2: Aplicar interés
+    // Aplicar interés
     public synchronized void aplicarInteres(double tasa) {
         if (tasa < 0) throw new IllegalArgumentException("La tasa no puede ser negativa.");
-        if (tipo != TipoCuenta.AHORROS)
+        if (tipo != TipoCuenta.AHORROS) // Si la cuenta es diferente a una cuenta de ahorros, no se puede poner tasa de interes
             throw new IllegalArgumentException("Solo las cuentas de AHORROS generan interés.");
-        double interes = saldo * tasa / 100;
-        saldo += interes;
-        historial.add("Interés aplicado: $" + interes + " | Nuevo saldo: $" + saldo);
+        double interes = saldo * tasa / 100; // calcula el valor del interes
+        saldo += interes; // actualiza el valor del saldo mas el interes
+        historial.add("Interés aplicado: $" + interes + " | Nuevo saldo: $" + saldo); // guarda el historial de la tasa de interes
     }
 
     // Funcionalidad para ver transacciones
-    public void mostrarHistorial() {
+    public void mostrarHistorial() {  // se puede acceder desde cualquier parte del programa y no retorna ningun valor
         if (historial.isEmpty()) {
             System.out.println("No hay transacciones registradas.");
             return;
