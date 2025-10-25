@@ -67,17 +67,17 @@ public class CuentaBancaria { // clase publica cuenta bancaria
 
     // Funcionalidad para ver transacciones
     public void mostrarHistorial() {  // se puede acceder desde cualquier parte del programa y no retorna ningun valor
-        if (historial.isEmpty()) {
+        if (historial.isEmpty()) {  // condicional para imprimir si el condicioinal esta vacio 
             System.out.println("No hay transacciones registradas.");
             return;
         }
         System.out.println("Historial de " + cliente + ":");
-        historial.forEach(h -> System.out.println(" - " + h));
-    }
+        historial.forEach(h -> System.out.println(" - " + h)); // usamos una expresion lambada represendada por la variable h, para que cada elemnto leido en la lista
+    }                                                          // por el forEach, se imprimido con un - adelante
 
-    @Override
+    @Override // Sobre escribe un metodo que ya existe en la clase padre "CuentaBancaria"
     public String toString() {
-        return String.format("ID:%d - %s (%s) - Saldo: %.2f", id, cliente, tipo, saldo);
+        return String.format("ID:%d - %s (%s) - Saldo: %.2f", id, cliente, tipo, saldo); // le asigna el siguiente formato
     }
 
     public static class InsufficientFundsException extends Exception {
@@ -85,30 +85,31 @@ public class CuentaBancaria { // clase publica cuenta bancaria
     }
 
     static class Banco {
-        private final Map<Integer, CuentaBancaria> cuentas = new LinkedHashMap<>();
+        private final Map<Integer, CuentaBancaria> cuentas = new LinkedHashMap<>(); // Map<Interger, estructura tipo diccionario. Interger representa el numero de la cuenta 
+                                                                 // New LinkedHashMap orgraniza la insersion de la cuenta en order                       
 
         public CuentaBancaria crearCuenta(String cliente, TipoCuenta tipo, double saldoInicial) {
-            CuentaBancaria c = new CuentaBancaria(cliente, tipo, saldoInicial);
-            cuentas.put(c.getId(), c);
+            CuentaBancaria c = new CuentaBancaria(cliente, tipo, saldoInicial); // c = abreviacion de cuenta bancaria
+            cuentas.put(c.getId(), c); // devuele la cuenta recien creada //
             return c;
         }
 
         public Optional<CuentaBancaria> obtenerCuenta(int id) {
-            return Optional.ofNullable(cuentas.get(id));
+            return Optional.ofNullable(cuentas.get(id)); // busca la cuenta bacaria de manera opcional puesto que si no existe no retorna nada. La busca por el ID y si extiste la devuelve
         }
 
-        public Collection<CuentaBancaria> listar() {
+        public Collection<CuentaBancaria> listar() { // devuelve una colección de todas las cuentas en el mapa 
             return Collections.unmodifiableCollection(cuentas.values());
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) { // main punto de enrada a cualquier programa //
         Banco banco = new Banco();
         banco.crearCuenta("Tony Stark", TipoCuenta.CORRIENTE, 1500.00);
         banco.crearCuenta("Natasha Romanoff", TipoCuenta.AHORROS, 2000.00);
 
-        try (Scanner sc = new Scanner(System.in)) {
-            while (true) {
+        try (Scanner sc = new Scanner(System.in)) { // scaner permite leer texto desde la consola // try asegura que el recursor se cierre automaticamente al terminar
+            while (true) { // bluque infinito que se repite hasta que el usurio elija salir //
                 System.out.println();
                 System.out.println("========== BANCO ==========");
                 System.out.println("1 - Crear cuenta");
