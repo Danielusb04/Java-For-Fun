@@ -115,7 +115,7 @@ public class CuentaBancaria { // clase publica cuenta bancaria
                 System.out.println("1 - Crear cuenta");
                 System.out.println("2 - Consultar saldo");
                 System.out.println("3 - Retirar");
-                System.out.println("4 - Depositar");
+                System.out.println("4 - Depositar");               /// opionces ////
                 System.out.println("5 - Listar cuentas");
                 System.out.println("6 - Transferir");
                 System.out.println("7 - Aplicar interés");
@@ -123,12 +123,12 @@ public class CuentaBancaria { // clase publica cuenta bancaria
                 System.out.println("9 - Salir");
                 System.out.print("Seleccione opción: ");
 
-                String linea = sc.nextLine().trim();
-                if (linea.isEmpty()) continue;
+                String linea = sc.nextLine().trim();  // le la opcion seleccionada ///
+                if (linea.isEmpty()) continue; // si el usario no ingresa ninguna opcion devuelve el menu //
 
                 int opcion;
-                try { opcion = Integer.parseInt(linea); }
-                catch (NumberFormatException e) { System.out.println("Opción inválida."); continue; }
+                try { opcion = Integer.parseInt(linea); } // debido a que el sc. (scaner convierte la opción en una cadena de texto) el interger.parseInt lo vuelve entero //
+                catch (NumberFormatException e) { System.out.println("Opción inválida."); continue; } // toma la opcion y devuelve en opcion valida o invalidad //
 
                 try {
                     switch (opcion) {
@@ -142,7 +142,7 @@ public class CuentaBancaria { // clase publica cuenta bancaria
                             retirarFlow(sc, banco);
                             break;
                         case 4:
-                            depositarFlow(sc, banco);
+                            depositarFlow(sc, banco);  /// opciones con su respectivo break para retornar al menu //
                             break;
                         case 5:
                             listarFlow(banco);
@@ -163,49 +163,49 @@ public class CuentaBancaria { // clase publica cuenta bancaria
                         default:
                             System.out.println("Opción no válida.");
                     }
-                } catch (Exception e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
+                } catch (Exception e) { // si algo sale mal dentro del proceso lo captura y lo imprime en un mensaje //
+                    System.out.println("Error: " + e.getMessage());    // expecption e es una variable general de java //
+                } 
             }
         }
     }
 
-    private static void crearCuentaFlow(Scanner sc, Banco banco) {
-        System.out.print("Nombre del titular: ");
-        String nombre = sc.nextLine().trim();
-        if (nombre.isEmpty()) { System.out.println("Nombre no puede estar vacío."); return; }
+    private static void crearCuentaFlow(Scanner sc, Banco banco) { // clase donde solo de puede acceder dentro de ella. el objeto es el banco y Scanner sc, para leer todo lo que el usuario escriba dentro de ella //
+        System.out.print("Nombre del titular: "); /* nombre de la cuenta */
+        String nombre = sc.nextLine().trim(); /*El resultado final se guarda en la varibale nombre. sc.Nexline espera que l usuario escriba algo y presiones enter y .trim elimna espacios en blanco  */
+        if (nombre.isEmpty()) { System.out.println("Nombre no puede estar vacío."); return; } // condicional en caso de que el nombre este en blanco //
 
-        System.out.print("Tipo (1=Corriente, 2=Ahorros): ");
-        String t = sc.nextLine().trim();
-        TipoCuenta tipo = "2".equals(t) ? TipoCuenta.AHORROS : TipoCuenta.CORRIENTE;
-
+        System.out.print("Tipo (1=Corriente, 2=Ahorros): "); // solicita el tipo de cuenta //
+        String t = sc.nextLine().trim(); /* lo guarda en la variable t */
+        TipoCuenta tipo = "2".equals(t) ? TipoCuenta.AHORROS : TipoCuenta.CORRIENTE; // ? operador tenerario (forma corta de if & else) //
+        // entonces si tipo de cuenta igual a 2, sera una cuenta corriente //
         System.out.print("Saldo inicial: ");
         try {
-            double saldoInicial = Double.parseDouble(sc.nextLine().trim());
-            CuentaBancaria c = banco.crearCuenta(nombre, tipo, saldoInicial);
+            double saldoInicial = Double.parseDouble(sc.nextLine().trim()); //* */ convierte el metodo el texto en un numero double //
+            CuentaBancaria c = banco.crearCuenta(nombre, tipo, saldoInicial);  // LLama al metodo crear cuenta del objeto banco y el resultado lo imprime con toString() de la clase cuenta bancaria //
             System.out.println("Cuenta creada: " + c);
         } catch (NumberFormatException e) {
             System.out.println("Saldo inválido.");
         }
     }
 
-    private static void consultarSaldoFlow(Scanner sc, Banco banco) {
-        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco);
+    private static void consultarSaldoFlow(Scanner sc, Banco banco) { // busca en Banco banco, las cuentas e informa el saldo //
+        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco); //* */ o varibale que puede contener la cuenta a elegir puesto que es opcional //
         o.ifPresentOrElse(
-                c -> System.out.println("Saldo actual: $" + c.getSaldo()),
-                () -> System.out.println("Cuenta no encontrada.")
+                c -> System.out.println("Saldo actual: $" + c.getSaldo()), // si o tiene un cuenta, guardala temporlamente e imprime c //
+                () -> System.out.println("Cuenta no encontrada.") 
         );
     }
 
-    private static void retirarFlow(Scanner sc, Banco banco) throws InsufficientFundsException {
-        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco);
+    private static void retirarFlow(Scanner sc, Banco banco) throws InsufficientFundsException { // private static = metodo auxiliar al que solo se puede acceder estando dentro de la clase //
+        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco); // se optine cuenta por id y si no se encuenta se imprime la siguiente linea //
         if (o.isEmpty()) { System.out.println("Cuenta no encontrada."); return; }
-        CuentaBancaria c = o.get();
+        CuentaBancaria c = o.get(); /*si se encuenta  cuenta c = o se guardara temporalmente en l variable c */
 
         System.out.print("Cantidad a retirar: ");
         try {
             double monto = Double.parseDouble(sc.nextLine().trim());
-            c.retirar(monto);
+            c.retirar(monto); // llama al metodo retirar e imprime la sigueinte linea //
             System.out.println("Retiro exitoso. Nuevo saldo: $" + c.getSaldo());
         } catch (NumberFormatException e) {
             System.out.println("Monto inválido.");
@@ -213,30 +213,30 @@ public class CuentaBancaria { // clase publica cuenta bancaria
     }
 
     private static void depositarFlow(Scanner sc, Banco banco) {
-        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco);
+        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco); // se optine por el Id de la cuenta y se guarda en la variable o //
         if (o.isEmpty()) { System.out.println("Cuenta no encontrada."); return; }
         CuentaBancaria c = o.get();
 
         System.out.print("Cantidad a depositar: ");
         try {
             double monto = Double.parseDouble(sc.nextLine().trim());
-            c.depositar(monto);
+            c.depositar(monto); // llama al metodo depositar e imprime las siguientes lineas //
             System.out.println("Depósito exitoso. Nuevo saldo: $" + c.getSaldo());
         } catch (NumberFormatException e) {
             System.out.println("Monto inválido.");
         }
     }
 
-    private static void listarFlow(Banco banco) {
+    private static void listarFlow(Banco banco) { //*enlista las cuentas y las devuelve en un collection e imprime las siguientes lineas*//
         Collection<CuentaBancaria> cuentas = banco.listar();
         if (cuentas.isEmpty()) { System.out.println("No hay cuentas."); return; }
         cuentas.forEach(System.out::println);
     }
 
-    private static void transferirFlow(Scanner sc, Banco banco) throws InsufficientFundsException {
-        System.out.print("ID de cuenta origen: ");
+    private static void transferirFlow(Scanner sc, Banco banco) throws InsufficientFundsException { // si la cuenta de origen no tiene fondos suficientes arroajara este error //
+        System.out.print("ID de cuenta origen: "); 
         Optional<CuentaBancaria> origen = obtenerCuentaPorId(sc, banco);
-        if (origen.isEmpty()) { System.out.println("Cuenta origen no encontrada."); return; }
+        if (origen.isEmpty()) { System.out.println("Cuenta origen no encontrada."); return; } // *si cuenta no exite retornara* //
 
         System.out.print("ID de cuenta destino: ");
         Optional<CuentaBancaria> destino = obtenerCuentaPorId(sc, banco);
@@ -244,8 +244,8 @@ public class CuentaBancaria { // clase publica cuenta bancaria
 
         System.out.print("Monto a transferir: ");
         try {
-            double monto = Double.parseDouble(sc.nextLine().trim());
-            origen.get().transferir(destino.get(), monto);
+            double monto = Double.parseDouble(sc.nextLine().trim()); // convierte el monto en un dobel y borra espacios en blanco //
+            origen.get().transferir(destino.get(), monto); // llama al metodo de la clase transferir //
             System.out.println("Transferencia exitosa.");
         } catch (NumberFormatException e) {
             System.out.println("Monto inválido.");
@@ -253,14 +253,14 @@ public class CuentaBancaria { // clase publica cuenta bancaria
     }
 
     private static void aplicarInteresFlow(Scanner sc, Banco banco) {
-        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco);
+        Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco); // si encuentra la cuenta la guardara en la variable o //
         if (o.isEmpty()) { System.out.println("Cuenta no encontrada."); return; }
-        CuentaBancaria c = o.get();
+        CuentaBancaria c = o.get(); 
 
         System.out.print("Ingrese tasa de interés (%): ");
         try {
             double tasa = Double.parseDouble(sc.nextLine().trim());
-            c.aplicarInteres(tasa);
+            c.aplicarInteres(tasa); //* llama al metodo de la case aplicar interes y ejecuta el bloque para luego imprimir las siguientes lineas */
             System.out.println("Interés aplicado correctamente.");
         } catch (NumberFormatException e) {
             System.out.println("Tasa inválida.");
@@ -270,7 +270,7 @@ public class CuentaBancaria { // clase publica cuenta bancaria
     private static void historialFlow(Scanner sc, Banco banco) {
         Optional<CuentaBancaria> o = obtenerCuentaPorId(sc, banco);
         if (o.isEmpty()) { System.out.println("Cuenta no encontrada."); return; }
-        o.get().mostrarHistorial();
+        o.get().mostrarHistorial(); //* */ si encuenta los historiales guardados en la viarable o imprimiera el historial *//
     }
 
     private static Optional<CuentaBancaria> obtenerCuentaPorId(Scanner sc, Banco banco) {
